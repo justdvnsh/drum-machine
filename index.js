@@ -64,95 +64,118 @@ const sounds = [
       }
 ];
 
+// createAudioElement - the component which adds music to the buttons.
+const CreateAudio = (props) => {
+   return( 
+     <button className="btn btn-lg btn-block btn-success" id={props.drumpadId} title={props.buttonKeyCode} onClick= {props.play}>
+      <audio id={props.audioId} className="clip" preload="auto" src={props.url} type="audio/mpeg">
+      </audio>
+       <p>{props.textName}</p>
+     </button>
+  );
+};
+
+// Drum machine element - the main element
+
 class DrumMachine extends React.Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      sound: "",
+      power: true
+    }
+    
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.activateSound = this.activateSound.bind(this);
+    this.handlePower = this.handlePower.bind(this);
+  }
+  
+  activateSound(elementId, elementName) {
+    document.getElementById(elementId).currentTime=0;
+    document.getElementById(elementId).play();
+    this.setState({
+      sound: elementName
+    });
+  }
+  
+  handleKeyDown(event) {
+     for (var i=0; i<sounds.length; i++) {
+         if (event.keyCode == sounds[i].keyCode) {
+          document.getElementById(sounds[i].name).click();
+         }
+     }
+  }
+  
+  handlePower() {
+    this.setState( {
+      power: !this.state.power
+    } )
+  }
+  
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown);
+  }
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown);
   }
   
   render() {
+    
+    // map the sounds to the keys.
+    
+    let drumpads = sounds.map((obj, index, array) => {
+      return(
+        <CreateAudio
+        drumpadId={array[index].name}
+        audioId={array[index].key}
+        buttonKeyCode={array[index].keyCode}
+        styleButton={this.state.button}
+        url={array[index].source}
+        play={() => this.activateSound(array[index].key, array[index].name, array[index])}
+        textName={array[index].key}
+        />
+      )
+    });
+
+    let PowerStatement = (
+      <div className = "card">
+        <div className="card-body">
+          <h2>You have Turned off the Power .</h2>
+        </div>
+      </div>
+    )
+    
     return (
       <div className="container-fluid">
-        <div className="card">
+        <div className="card" id="main-card">
           <div className="card-body">
             <div className="row">
               {/* left side audio buttons */}
-              <div className="col-md-8">
-                {/* first row - buttons Q, W, E*/}  
-                <div className="row">
-                   {/* button Q */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">Q</button>
-                    </div>
-
-                    {/* button W */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">W</button>
-                    </div>
-
-                    {/* button E */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">E</button>
-                    </div>
-                </div><br/><hr/>
-
-                {/* second row - buttons A, S, D*/}  
-                <div className="row">
-                   {/* button A */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">A</button>
-                    </div>
-
-                    {/* button S */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">S</button>
-                    </div>
-
-                    {/* button D */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">D</button>
-                    </div>
-                </div> <br/> <hr/>
-
-                {/* third row - buttons Z, X, C */}  
-                <div className="row">
-                   {/* button Z */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">Z</button>
-                    </div>
-
-                    {/* button X */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">X</button>
-                    </div>
-
-                    {/* button C */}
-                    <div className="col-md-4">
-                       <button className="btn btn-lg btn-default btn-block">C</button>
-                    </div>
-                </div>
+              <div className="col-md-8">                
+                { this.state.power ? drumpads : PowerStatement }
               </div>
-              
+
               {/* right side heater panel */}
               <div className="col-md-4">
                   { /* Power */ }
 
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
-                    <label class="form-check-label" for="defaultCheck1">
-                      Power
-                    </label>
-                  </div><br />
+                  <button className="btn btn-lg btn-danger btn-block" onClick = {this.handlePower}>
+                        <i className="fa fa-power"></i>Power
+                  </button><br />
                
                   {/* informer - key note teller */}
 
                   <div className="card">
-                      <div className="card-body"></div>  
+                      <div className="card-body">
+                        <h1>{ this.state.sound }</h1>
+                      </div>  
                   </div><br />
 
                   {/* volume */}
                   <form>
                     <div class="form-group">
-                      <label for="formControlRange">Volume</label>
+                      <label for="formControlRange"><h3>Volume</h3></label>
                       <input type="range" class="form-control-range" id="formControlRange" />
                     </div>
                   </form><br />

@@ -1,0 +1,11 @@
+#main-card {
+  background: linear-gradient(
+      35deg,
+      #ccffff,
+      #ffcccc
+    );
+  border-radius: 10px;
+  margin-top: 7vh;
+  padding: auto;
+  box-shadow: 8px 8px #777
+}
